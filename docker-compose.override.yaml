@@ -1,0 +1,29 @@
+# Persistent safe startup settings for the Postiz Compose project (INFRA-3238 Phase 3a).
+# Loaded automatically by `docker compose` in this directory, so every Compose
+# operation (up, create, recreate, restart) keeps these settings. Do not remove
+# to "fix" a start: removing this file restores the image default path, which
+# runs `prisma db push --accept-data-loss` and the orchestrator.
+#
+# Effects:
+#   temporal:  no setup argument, so the image auto-setup (schema and Elasticsearch
+#              template writes) does not run; published port 7233 removed.
+#   temporal-ui: published port 8080 removed (UI not started by this phase).
+#   postiz:    backend and frontend only, behind nginx on 5000; the orchestrator
+#              (publishing and email workers) is not started; RUN_CRON empty;
+#              published mapping 4007:5000 removed (the loopback proxy on 4007 is
+#              a separate, unchanged host process).
+#
+# Authoritative invocation (run from this directory, no image pulls):
+#   docker compose up -d --no-build --pull never <service>
+services:
+  temporal:
+    entrypoint: ["/etc/temporal/entrypoint.sh"]
+    command: ["start"]
+    ports: !reset []
+  temporal-ui:
+    ports: !reset []
+  postiz:
+    command: ["sh", "-c", "nginx && (cd /app/apps/backend && exec node --experimental-require-module ./dist/apps/backend/src/main.js) & cd /app/apps/frontend && exec /app/node_modules/.bin/next start -p 4200"]
+    environment:
+      RUN_CRON: ""
+    ports: !reset []
