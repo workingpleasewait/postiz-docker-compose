@@ -23,6 +23,7 @@ services:
   temporal-ui:
     ports: !reset []
   postiz:
+    image: ghcr.io/gitroomhq/postiz-app:v2.26.0@sha256:875e61ac5d0ac43c3dec78a78a7032dfb03d9a8c6d4936ebb18adb606cc207c5
     command: ["sh", "-c", "nginx && (cd /app/apps/backend && exec node --experimental-require-module ./dist/apps/backend/src/main.js) & cd /app/apps/frontend && exec /app/node_modules/.bin/next start -p 4200"]
     environment:
       RUN_CRON: ""
