@@ -1,15 +1,16 @@
-# Persistent safe startup settings for the Postiz Compose project (INFRA-3238 Phase 3a).
+# Persistent safe startup settings for the Postiz Compose project (INFRA-3238).
 # Loaded automatically by `docker compose` in this directory, so every Compose
 # operation (up, create, recreate, restart) keeps these settings. Do not remove
 # to "fix" a start: removing this file restores the image default path, which
-# runs `prisma db push --accept-data-loss` and the orchestrator.
+# runs `prisma db push --accept-data-loss` before starting application processes.
 #
 # Effects:
 #   temporal:  no setup argument, so the image auto-setup (schema and Elasticsearch
 #              template writes) does not run; published port 7233 removed.
 #   temporal-ui: published port 8080 removed (UI not started by this phase).
-#   postiz:    backend and frontend only, behind nginx on 5000; the orchestrator
-#              (publishing and email workers) is not started; RUN_CRON empty;
+#   postiz:    nginx plus the image's backend/frontend/orchestrator PM2 scripts;
+#              publishing, email workers and RUN_CRON enabled with Jeff's
+#              November 16 approval; the default schema-push chain is bypassed;
 #              published mapping 4007:5000 removed (the loopback proxy on 4007 is
 #              a separate, unchanged host process).
 #
@@ -24,7 +25,7 @@ services:
     ports: !reset []
   postiz:
     image: ghcr.io/gitroomhq/postiz-app:v2.26.0@sha256:875e61ac5d0ac43c3dec78a78a7032dfb03d9a8c6d4936ebb18adb606cc207c5
-    command: ["sh", "-c", "nginx && (cd /app/apps/backend && exec node --experimental-require-module ./dist/apps/backend/src/main.js) & cd /app/apps/frontend && exec /app/node_modules/.bin/next start -p 4200"]
+    command: ["sh", "-ec", "nginx; cd /app; pnpm --filter ./apps/backend --filter ./apps/frontend --filter ./apps/orchestrator --parallel pm2; exec pm2 logs"]
     environment:
-      RUN_CRON: ""
+      RUN_CRON: "true"
     ports: !reset []
