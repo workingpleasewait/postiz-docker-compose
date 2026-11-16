@@ -25,7 +25,7 @@ services:
     ports: !reset []
   postiz:
     image: ghcr.io/gitroomhq/postiz-app:v2.26.0@sha256:875e61ac5d0ac43c3dec78a78a7032dfb03d9a8c6d4936ebb18adb606cc207c5
-    command: ["sh", "-ec", "nginx; cd /app; pnpm --filter ./apps/backend --filter ./apps/frontend --filter ./apps/orchestrator --parallel pm2; exec pm2 logs"]
+    command: ["sh", "-ec", "nginx; cd /app; pnpm --filter ./apps/backend pm2; pnpm --filter ./apps/frontend pm2; pnpm --filter ./apps/orchestrator pm2; exec pm2 logs"]
     environment:
       RUN_CRON: "true"
     ports: !reset []
