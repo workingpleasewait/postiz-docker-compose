@@ -1,0 +1,8 @@
+{
+  "name": "hayekian-postiz-info",
+  "compatibility_date": "2026-11-18",
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": { "directory": "./public" },
+  "routes": [{ "pattern": "postiz-info.hayekian.io", "custom_domain": true }]
+}
